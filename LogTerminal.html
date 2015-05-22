@@ -10,8 +10,10 @@
     textarea {resize: none;}
   </style>
 
-  <div ng-controller="terminalController" >
-      <div name="logList" ng-repeat="logEntry in logEntries.list">
+  <div ng-controller="terminalController">
+    <h1>Log Entries:</h1>
+      <div name="logList" ng-repeat="logEntry in logEntries.list | orderBy:logEntries.sortField:logEntries.reverse">
+        <h3>A Log Entry</h3>
         <div>
           {{logEntry.time | date:'yyyy-MM-ddTHH:mm:ss.sssZ'}} {{logEntry.id}} {{logEntry.location}}
         </div>
@@ -20,13 +22,28 @@
 
   <script>
     angular.module("logTerminal", [])
-    .controller("terminalController", function($scope) {
+    .controller("terminalController", function($scope, $interval, $http) {
       $scope.logEntries = {};
       $scope.logEntries.terminal = "";
-      $scope.logEntries.list = [{time: 1430507118895, id: "12233445", location: "Front Desk"},
-                                {time: 1430508118895, id: "22334455", location: "Vault"},
-                                {time: 1430509118895, id: "11223344", location: "Managers Office"},
-                                {time: 1430510118895, id: "34561234", location: "Front Desk"}];
+      /*$scope.logEntries.list = [{time: 1430507118798, id: "12233445", location: "Front Desk"},
+                                {time: 1430508118687, id: "22334455", location: "Vault"},
+                                {time: 1430509118576, id: "11223344", location: "Managers Office"},
+                                {time: 1430510118465, id: "34561234", location: "Front Desk"}]; */
+      $scope.logEntries.sortField = "time";
+      $scope.logEntries.reverse = true;
+      $scope.logEntries.url = 'http://127.0.0.1:8080/read-log';
+      $scope.logEntries.getEntries = function() {
+        $http.get(this.url)
+          .success(function(data, status, headers, config) {
+            $scope.logEntries.list = data;
+            console.log("Server reached!");
+          })
+          .error(function(data, status, headers, config) {
+            console.log("Cannot reach Log Server!\n" + data);
+          });
+      };
+      $interval( function(){ $scope.logEntries.getEntries(); } , 3000);
+
     });
   </script>
 
