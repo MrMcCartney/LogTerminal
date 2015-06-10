@@ -31,9 +31,16 @@
                                 {time: 1430510118465, id: "34561234", location: "Front Desk"}]; */
       $scope.logEntries.sortField = "time";
       $scope.logEntries.reverse = true;
-      $scope.logEntries.url = "http://dev-banksecurity-1.hoegg.software/read-log";
+      $scope.logEntries.url = "http://dev-banksecurity-1.hoegg.software:8080/read-log";
       $scope.logEntries.getEntries = function() {
-        $http.get(this.url)
+        var getData = {
+            method: 'GET',
+            url: this.url,
+            headers: {
+                'Content-Type': undefined
+            }
+        };
+        $http(getData)
           .success(function(data, status, headers, config) {
             $scope.logEntries.list = data;
             console.log("Server reached!");
